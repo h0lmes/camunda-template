@@ -1,55 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_08rm48g" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
-  <bpmn:process id="processDefault" name="Default Process" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_1" name="Request Received">
+  <bpmn:process id="registration" name="Registration" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start">
       <bpmn:outgoing>Flow_02d9xbu</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_02d9xbu" sourceRef="StartEvent_1" targetRef="taskWrite" />
-    <bpmn:serviceTask id="taskWrite" name="Write" camunda:delegateExpression="${writerProcess}">
+    <bpmn:sequenceFlow id="Flow_02d9xbu" sourceRef="start" targetRef="write" />
+    <bpmn:serviceTask id="write" name="Write" camunda:delegateExpression="${writeTask}">
       <bpmn:incoming>Flow_02d9xbu</bpmn:incoming>
-      <bpmn:outgoing>Flow_1azx5oa</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14s3zfj</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="Event_0kq969b" name="Request Processed">
+    <bpmn:endEvent id="end" name="End">
       <bpmn:incoming>Flow_0gx66s8</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0gx66s8" sourceRef="taskRead" targetRef="Event_0kq969b" />
-    <bpmn:sequenceFlow id="Flow_1azx5oa" sourceRef="taskWrite" targetRef="taskRead" />
-    <bpmn:serviceTask id="taskRead" name="Read" camunda:delegateExpression="${readerProcess}">
+    <bpmn:sequenceFlow id="Flow_0gx66s8" sourceRef="read" targetRef="end" />
+    <bpmn:sequenceFlow id="Flow_1azx5oa" sourceRef="await" targetRef="read" />
+    <bpmn:serviceTask id="read" name="Read" camunda:delegateExpression="${readTask}">
       <bpmn:incoming>Flow_1azx5oa</bpmn:incoming>
       <bpmn:outgoing>Flow_0gx66s8</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_14s3zfj" sourceRef="write" targetRef="await" />
+    <bpmn:serviceTask id="await" name="Await" camunda:type="external" camunda:topic="awaitTask">
+      <bpmn:incoming>Flow_14s3zfj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1azx5oa</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="processDefault">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="registration">
       <bpmndi:BPMNEdge id="Flow_02d9xbu_di" bpmnElement="Flow_02d9xbu">
         <di:waypoint x="215" y="117" />
         <di:waypoint x="270" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0gx66s8_di" bpmnElement="Flow_0gx66s8">
-        <di:waypoint x="530" y="117" />
-        <di:waypoint x="602" y="117" />
+        <di:waypoint x="530" y="260" />
+        <di:waypoint x="622" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1azx5oa_di" bpmnElement="Flow_1azx5oa">
+        <di:waypoint x="480" y="157" />
+        <di:waypoint x="480" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14s3zfj_di" bpmnElement="Flow_14s3zfj">
         <di:waypoint x="370" y="117" />
         <di:waypoint x="430" y="117" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start">
         <dc:Bounds x="179" y="99" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="152" y="142" width="90" height="14" />
+          <dc:Bounds x="185" y="142" width="25" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0rca8xe_di" bpmnElement="taskWrite">
+      <bpmndi:BPMNShape id="Activity_0rca8xe_di" bpmnElement="write">
         <dc:Bounds x="270" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0kq969b_di" bpmnElement="Event_0kq969b">
-        <dc:Bounds x="602" y="99" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="594" y="142" width="52" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ryb29h_di" bpmnElement="taskRead">
+      <bpmndi:BPMNShape id="Activity_1q0r3wl_di" bpmnElement="await">
         <dc:Bounds x="430" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ryb29h_di" bpmnElement="read">
+        <dc:Bounds x="430" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0kq969b_di" bpmnElement="end">
+        <dc:Bounds x="622" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="630" y="285" width="20" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

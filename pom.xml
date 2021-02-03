@@ -14,7 +14,7 @@
 	<artifactId>camundatemplate</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>camundatemplate</name>
-	<description>Template project with Camunda</description>
+	<description>Template project with Spring Boot Camunda BPM integration</description>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -39,18 +39,18 @@
 		<!-- camunda dependencies -->
 		<dependency>
 			<groupId>org.camunda.bpm.springboot</groupId>
-			<artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
+			<artifactId>camunda-bpm-spring-boot-starter</artifactId>
 			<version>${camunda.spring-boot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
-			<version>2.2.3</version>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>com.sun.xml.bind</groupId>-->
+			<!--<artifactId>jaxb-impl</artifactId>-->
+			<!--<version>2.2.3</version>-->
+		<!--</dependency>-->
 	</dependencies>
 
 	<build>
