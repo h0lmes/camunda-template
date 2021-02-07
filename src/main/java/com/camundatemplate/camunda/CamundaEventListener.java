@@ -1,4 +1,4 @@
-package com.camundatemplate.config;
+package com.camundatemplate.camunda;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
