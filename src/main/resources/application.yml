@@ -5,6 +5,28 @@ spring:
   profiles:
     active: development
 
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      show-sql: true
+
+  datasource:
+    primary:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5432/postgres
+      username: postgres
+      password: 1234
+      configuration:
+        maximum-pool-size: 30
+
+    camunda:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5432/camunda
+      username: postgres
+      password: 1234
+      configuration:
+        maximum-pool-size: 30
+
 camunda.bpm:
   admin-user:
     id: demo
@@ -12,3 +34,4 @@ camunda.bpm:
     firstName: Demo
   filter:
     create: All tasks
+
