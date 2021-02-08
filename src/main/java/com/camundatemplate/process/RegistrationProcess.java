@@ -23,16 +23,18 @@ public class RegistrationProcess {
 
     private final Logger log = LoggerFactory.getLogger(RegistrationProcess.class);
 
-    private static final String PROCESS_KEY = "registration";
-    private static final String AWAIT_TASK_TOPIC = "awaitTask";
+    private static final String PROCESS_KEY = "processRegistration";
 
-    private static final String WORKER_ID = "externalTaskWorker";
+    private static final String TASK_CONFIRM_ACCOUNT_TOPIC = "taskConfirmAccount";
+    private static final String TASK_CONFIRM_ACCOUNT_WORKER = "taskConfirmAccountWorker";
     private static final long LOCK_INTERVAL = 10000L;
+    private static final int FETCH_LOCK_SIZE = 10;
 
     static final String EXTERNAL_ID_ATTRIBUTE = "externalId";
-    static final String LINK_ID_ATTRIBUTE = "linkId";
-    static final String CUSTOM_ATTRIBUTE1 = "attr1";
-    static final String CUSTOM_ATTRIBUTE2 = "attr2";
+    static final String CUSTOM_ATTRIBUTE = "attr";
+
+    // BPMN diagram should contain error definition with the following error code
+    private static final String ERR_CONFIRM_ACCOUNT = "ERR_CONFIRM_ACCOUNT";
 
     private RuntimeService runtimeService;
     private ExternalTaskService externalTaskService;
@@ -43,27 +45,38 @@ public class RegistrationProcess {
     }
 
     public String startRandom() {
-        return start(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        return start(UUID.randomUUID().toString());
     }
 
-    public String start(String externalId, String linkId) {
+    public String start(String externalId) {
+        log.info("******* start process");
         Map<String, Object> params = new HashMap<>();
         params.put(RegistrationProcess.EXTERNAL_ID_ATTRIBUTE, externalId);
-        params.put(RegistrationProcess.LINK_ID_ATTRIBUTE, linkId);
         ProcessInstance process = runtimeService.startProcessInstanceByKey(PROCESS_KEY, params);
         return process.getId();
     }
 
-    public void completeAwaitTasks() {
-        log.info("Handle external tasks.");
+    public void confirmAccount() {
+        confirmOrFailAccount(true);
+    }
 
-        List<LockedExternalTask> tasks = externalTaskService.fetchAndLock(10, WORKER_ID)
-                .topic(AWAIT_TASK_TOPIC, LOCK_INTERVAL)
+    public void failAccount() {
+        confirmOrFailAccount(false);
+    }
+
+    private void confirmOrFailAccount(boolean success) {
+        List<LockedExternalTask> tasks = externalTaskService.fetchAndLock(FETCH_LOCK_SIZE, TASK_CONFIRM_ACCOUNT_WORKER)
+                .topic(TASK_CONFIRM_ACCOUNT_TOPIC, LOCK_INTERVAL)
                 .execute();
 
         for (LockedExternalTask task : tasks) {
-            log.info("Handle task " + Util.variablesToString(task.getVariables()));
-            externalTaskService.complete(task.getId(), WORKER_ID);
+            if (success) {
+                log.info("******* confirm account for " + Util.variablesToString(task.getVariables()));
+                externalTaskService.complete(task.getId(), TASK_CONFIRM_ACCOUNT_WORKER);
+            } else {
+                log.info("******* fail account for " + Util.variablesToString(task.getVariables()));
+                externalTaskService.handleBpmnError(task.getId(), TASK_CONFIRM_ACCOUNT_WORKER, ERR_CONFIRM_ACCOUNT);
+            }
         }
     }
 }

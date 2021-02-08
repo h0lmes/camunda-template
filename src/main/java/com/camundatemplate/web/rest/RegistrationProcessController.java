@@ -16,12 +16,17 @@ public class RegistrationProcessController {
     }
 
     @GetMapping("start")
-    public String start() {
-        return registrationProcess.startRandom();
+    public void start() {
+        registrationProcess.startRandom();
     }
 
-    @GetMapping("proceed")
-    public void proceed() {
-        registrationProcess.completeAwaitTasks();
+    @GetMapping("confirm")
+    public void confirm() {
+        registrationProcess.confirmAccount();
+    }
+
+    @GetMapping("fail")
+    public void fail() {
+        registrationProcess.failAccount();
     }
 }

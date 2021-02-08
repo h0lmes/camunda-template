@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReadTask implements JavaDelegate {
+public class TaskUpdateUser implements JavaDelegate {
 
-    private final Logger log = LoggerFactory.getLogger(ReadTask.class);
+    private final Logger log = LoggerFactory.getLogger(TaskUpdateUser.class);
 
     public void execute(DelegateExecution delegate) throws Exception {
-        log.info("ReadTask invoked " + Util.variablesToString(delegate.getVariables()));
+        log.info("******* TaskUpdateUser invoked " + Util.variablesToString(delegate.getVariables()));
     }
 }

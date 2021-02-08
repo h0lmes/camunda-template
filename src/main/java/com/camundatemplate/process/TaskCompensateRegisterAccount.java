@@ -8,14 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WriteTask implements JavaDelegate {
+public class TaskCompensateRegisterAccount implements JavaDelegate {
 
-    private final Logger log = LoggerFactory.getLogger(WriteTask.class);
+    private final Logger log = LoggerFactory.getLogger(TaskCompensateRegisterAccount.class);
 
     public void execute(DelegateExecution delegate) throws Exception {
-        log.info("WriteTask invoked " + Util.variablesToString(delegate.getVariables()));
-
-        delegate.setVariable(RegistrationProcess.CUSTOM_ATTRIBUTE1, "value1");
-        delegate.setVariable(RegistrationProcess.CUSTOM_ATTRIBUTE2, "value2");
+        log.info("******* TaskCompensateRegisterAccount invoked " + Util.variablesToString(delegate.getVariables()));
     }
 }

@@ -1,4 +1,4 @@
-package com.camundatemplate.camunda;
+package com.camundatemplate.process;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
@@ -39,5 +39,4 @@ public class CamundaEventListener {
 //    public void onHistoryEvent(HistoryEvent historyEvent) {
 //        System.out.println("History event: [" + historyEvent.getEventType() + "] " + historyEvent.toString());
 //    }
-
 }

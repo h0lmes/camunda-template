@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_08rm48g" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+  <bpmn:process id="processRegistration" name="Registration" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start">
+      <bpmn:outgoing>Flow_0ho5x0d</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="taskRegisterAccount" name="Register Account" camunda:delegateExpression="${taskRegisterAccount}">
+      <bpmn:incoming>Flow_1exlszc</bpmn:incoming>
+      <bpmn:outgoing>Flow_14s3zfj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="end" name="End">
+      <bpmn:incoming>Flow_0x51mak</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1azx5oa" sourceRef="taskConfirmAccount" targetRef="taskUpdateUser" />
+    <bpmn:serviceTask id="taskUpdateUser" name="Update User" camunda:delegateExpression="${taskUpdateUser}">
+      <bpmn:incoming>Flow_1azx5oa</bpmn:incoming>
+      <bpmn:outgoing>Flow_0x51mak</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_14s3zfj" sourceRef="taskRegisterAccount" targetRef="taskConfirmAccount" />
+    <bpmn:serviceTask id="taskConfirmAccount" name="Confirm Account External Task" camunda:asyncAfter="true" camunda:type="external" camunda:topic="taskConfirmAccount">
+      <bpmn:incoming>Flow_14s3zfj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1azx5oa</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Event_004oduz" attachedToRef="taskRegisterAccount">
+      <bpmn:compensateEventDefinition id="CompensateEventDefinition_06dizfa" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="taskCompensateRegisterAccount" name="Compensate Register Account" isForCompensation="true" camunda:delegateExpression="${taskCompensateRegisterAccount}" />
+    <bpmn:sequenceFlow id="Flow_0x51mak" sourceRef="taskUpdateUser" targetRef="end" />
+    <bpmn:sequenceFlow id="Flow_0ho5x0d" sourceRef="start" targetRef="taskSetValues" />
+    <bpmn:sequenceFlow id="Flow_1exlszc" sourceRef="taskSetValues" targetRef="taskRegisterAccount" />
+    <bpmn:serviceTask id="taskSetValues" name="Set Some Values" camunda:delegateExpression="${taskSetValues}">
+      <bpmn:incoming>Flow_0ho5x0d</bpmn:incoming>
+      <bpmn:outgoing>Flow_1exlszc</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Event_1vsoffp" attachedToRef="taskSetValues">
+      <bpmn:compensateEventDefinition id="CompensateEventDefinition_05nvkwu" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="taskCompensateSetValues" name="Compensate Set Values" isForCompensation="true" camunda:delegateExpression="${taskCompensateSetValues}" />
+    <bpmn:subProcess id="Activity_0krge93" triggeredByEvent="true">
+      <bpmn:startEvent id="Event_1eftpna">
+        <bpmn:outgoing>Flow_0vmsr4m</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_1nroyym" errorRef="Error_1sf1zd9" />
+      </bpmn:startEvent>
+      <bpmn:endEvent id="Event_1au34g5">
+        <bpmn:incoming>Flow_1ukydyi</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_1ukydyi" sourceRef="Event_1ivnyyi" targetRef="Event_1au34g5" />
+      <bpmn:intermediateThrowEvent id="Event_1ivnyyi">
+        <bpmn:incoming>Flow_0vmsr4m</bpmn:incoming>
+        <bpmn:outgoing>Flow_1ukydyi</bpmn:outgoing>
+        <bpmn:compensateEventDefinition id="CompensateEventDefinition_1n0yufs" />
+      </bpmn:intermediateThrowEvent>
+      <bpmn:sequenceFlow id="Flow_0vmsr4m" sourceRef="Event_1eftpna" targetRef="Event_1ivnyyi" />
+    </bpmn:subProcess>
+    <bpmn:association id="Association_0tml8z0" associationDirection="One" sourceRef="Event_004oduz" targetRef="taskCompensateRegisterAccount" />
+    <bpmn:association id="Association_1n438u0" associationDirection="One" sourceRef="Event_1vsoffp" targetRef="taskCompensateSetValues" />
+    <bpmn:textAnnotation id="TextAnnotation_1p8rmae">
+      <bpmn:text>subprocess for error handling and task compensation</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0dobxev" sourceRef="Activity_0krge93" targetRef="TextAnnotation_1p8rmae" />
+  </bpmn:process>
+  <bpmn:error id="Error_1sf1zd9" name="ERR_CONFIRM_ACCOUNT" errorCode="ERR_CONFIRM_ACCOUNT" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="processRegistration">
+      <bpmndi:BPMNShape id="TextAnnotation_1p8rmae_di" bpmnElement="TextAnnotation_1p8rmae">
+        <dc:Bounds x="470" y="380" width="100" height="68" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1exlszc_di" bpmnElement="Flow_1exlszc">
+        <di:waypoint x="340" y="117" />
+        <di:waypoint x="400" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ho5x0d_di" bpmnElement="Flow_0ho5x0d">
+        <di:waypoint x="188" y="117" />
+        <di:waypoint x="240" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0x51mak_di" bpmnElement="Flow_0x51mak">
+        <di:waypoint x="800" y="117" />
+        <di:waypoint x="842" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14s3zfj_di" bpmnElement="Flow_14s3zfj">
+        <di:waypoint x="500" y="117" />
+        <di:waypoint x="550" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1azx5oa_di" bpmnElement="Flow_1azx5oa">
+        <di:waypoint x="650" y="117" />
+        <di:waypoint x="700" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start">
+        <dc:Bounds x="152" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="158" y="142" width="25" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0rca8xe_di" bpmnElement="taskRegisterAccount">
+        <dc:Bounds x="400" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0kq969b_di" bpmnElement="end">
+        <dc:Bounds x="842" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="850" y="75" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ryb29h_di" bpmnElement="taskUpdateUser">
+        <dc:Bounds x="700" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1q0r3wl_di" bpmnElement="taskConfirmAccount">
+        <dc:Bounds x="550" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_06u7w30_di" bpmnElement="taskCompensateRegisterAccount">
+        <dc:Bounds x="400" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ilbnao_di" bpmnElement="taskSetValues">
+        <dc:Bounds x="240" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0km9awt_di" bpmnElement="taskCompensateSetValues">
+        <dc:Bounds x="240" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1921a1d_di" bpmnElement="Activity_0krge93" isExpanded="true">
+        <dc:Bounds x="156" y="380" width="268" height="140" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0vmsr4m_di" bpmnElement="Flow_0vmsr4m">
+        <di:waypoint x="224" y="450" />
+        <di:waypoint x="270" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ukydyi_di" bpmnElement="Flow_1ukydyi">
+        <di:waypoint x="306" y="450" />
+        <di:waypoint x="350" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_14hwjt8_di" bpmnElement="Event_1eftpna">
+        <dc:Bounds x="188" y="432" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1uysvmh_di" bpmnElement="Event_1ivnyyi">
+        <dc:Bounds x="270" y="432" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1au34g5_di" bpmnElement="Event_1au34g5">
+        <dc:Bounds x="350" y="432" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0dobxev_di" bpmnElement="Association_0dobxev">
+        <di:waypoint x="424" y="418" />
+        <di:waypoint x="470" y="407" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_02h6nvr_di" bpmnElement="Event_1vsoffp">
+        <dc:Bounds x="272" y="139" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0x4cuqv_di" bpmnElement="Event_004oduz">
+        <dc:Bounds x="432" y="139" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0tml8z0_di" bpmnElement="Association_0tml8z0">
+        <di:waypoint x="450" y="175" />
+        <di:waypoint x="450" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_1n438u0_di" bpmnElement="Association_1n438u0">
+        <di:waypoint x="290" y="175" />
+        <di:waypoint x="290" y="210" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
