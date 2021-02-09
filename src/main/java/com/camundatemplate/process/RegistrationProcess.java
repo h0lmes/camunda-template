@@ -1,10 +1,14 @@
 package com.camundatemplate.process;
 
+import com.camundatemplate.process.model.RegistrationProcessData;
 import com.camundatemplate.util.Util;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.delegate.VariableScope;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.variable.VariableMap;
+import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -31,6 +35,7 @@ public class RegistrationProcess {
     private static final int FETCH_LOCK_SIZE = 10;
 
     static final String EXTERNAL_ID_ATTRIBUTE = "externalId";
+    private static final String PROCESS_DATA_ATTRIBUTE = "processData";
     static final String CUSTOM_ATTRIBUTE = "attr";
 
     // BPMN diagram should contain error definition with the following error code
@@ -48,12 +53,23 @@ public class RegistrationProcess {
         return start(UUID.randomUUID().toString());
     }
 
+    /**
+     * A method to start an instance of the process.
+     * @param externalId some startup variable for demo purposes.
+     * @return process instance Id
+     */
     public String start(String externalId) {
+        log.info("\n\n\n");
         log.info("******* start process");
-        Map<String, Object> params = new HashMap<>();
-        params.put(RegistrationProcess.EXTERNAL_ID_ATTRIBUTE, externalId);
-        ProcessInstance process = runtimeService.startProcessInstanceByKey(PROCESS_KEY, params);
-        return process.getId();
+        return runtimeService
+                .startProcessInstanceByKey(PROCESS_KEY, makeStartupVariables(externalId))
+                .getId();
+    }
+
+    private Map<String, Object> makeStartupVariables(String externalId) {
+        return Variables.createVariables()
+                .putValue(EXTERNAL_ID_ATTRIBUTE, externalId)
+                .putValue(PROCESS_DATA_ATTRIBUTE, new RegistrationProcessData("number", "holder"));
     }
 
     public void confirmAccount() {
@@ -64,12 +80,18 @@ public class RegistrationProcess {
         confirmOrFailAccount(false);
     }
 
+    /**
+     * This method handles External Service Tasks for a specific topic TASK_CONFIRM_ACCOUNT_TOPIC.
+     */
     private void confirmOrFailAccount(boolean success) {
-        List<LockedExternalTask> tasks = externalTaskService.fetchAndLock(FETCH_LOCK_SIZE, TASK_CONFIRM_ACCOUNT_WORKER)
+        List<LockedExternalTask> tasks = externalTaskService
+                .fetchAndLock(FETCH_LOCK_SIZE, TASK_CONFIRM_ACCOUNT_WORKER)
                 .topic(TASK_CONFIRM_ACCOUNT_TOPIC, LOCK_INTERVAL)
+                .enableCustomObjectDeserialization()
                 .execute();
 
         for (LockedExternalTask task : tasks) {
+            RegistrationProcessData data = getData(task);
             if (success) {
                 log.info("******* confirm account for " + Util.variablesToString(task.getVariables()));
                 externalTaskService.complete(task.getId(), TASK_CONFIRM_ACCOUNT_WORKER);
@@ -78,5 +100,37 @@ public class RegistrationProcess {
                 externalTaskService.handleBpmnError(task.getId(), TASK_CONFIRM_ACCOUNT_WORKER, ERR_CONFIRM_ACCOUNT);
             }
         }
+    }
+
+    /**
+     * Static method for type-safe process data retrieval.
+     * @param lockedExternalTask
+     * @return typed data
+     */
+    public static RegistrationProcessData getData(LockedExternalTask lockedExternalTask) {
+        return (RegistrationProcessData) lockedExternalTask
+                .getVariables()
+                .<ObjectValue>getValueTyped(RegistrationProcess.PROCESS_DATA_ATTRIBUTE)
+                .getValue();
+    }
+
+    /**
+     * Static method for type-safe process data retrieval.
+     * @param delegate any delegate execution
+     * @return typed data
+     */
+    public static RegistrationProcessData getData(VariableScope delegate) {
+        return (RegistrationProcessData) delegate
+                .<ObjectValue>getVariableTyped(RegistrationProcess.PROCESS_DATA_ATTRIBUTE)
+                .getValue();
+    }
+
+    /**
+     * Static method for type-safe process data storing.
+     * @param delegate any delegate execution
+     * @param data typed data to store in the process scope
+     */
+    public static void setData(VariableScope delegate, RegistrationProcessData data) {
+        delegate.setVariable(RegistrationProcess.PROCESS_DATA_ATTRIBUTE, data);
     }
 }
