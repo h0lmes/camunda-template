@@ -16,6 +16,6 @@ public class CamundaConfig {
 
     @EventListener
     public void processPostDeploy(PostDeployEvent event) {
-        registrationProcess.startRandom();
+        //registrationProcess.startRandom();
     }
 }

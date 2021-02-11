@@ -60,7 +60,7 @@ public class RegistrationProcess {
      */
     public String start(String externalId) {
         log.info("\n\n\n");
-        log.info("******* start process");
+        log.info("******* start process " + PROCESS_KEY);
         return runtimeService
                 .startProcessInstanceByKey(PROCESS_KEY, makeStartupVariables(externalId))
                 .getId();

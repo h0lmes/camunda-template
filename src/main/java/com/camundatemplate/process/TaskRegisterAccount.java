@@ -14,5 +14,6 @@ public class TaskRegisterAccount implements JavaDelegate {
 
     public void execute(DelegateExecution delegate) throws Exception {
         log.info("******* TaskRegisterAccount invoked " + Util.variablesToString(delegate.getVariables()));
+        log.info("******* process BusinessKey is " + delegate.getProcessBusinessKey());
     }
 }
