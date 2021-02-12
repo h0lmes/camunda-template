@@ -16,19 +16,25 @@ Cache-Control: no-cache
 
 ###
 
-GET http://localhost:8080/api/registration/start
+GET http://localhost:8080/api/registration/start/1
 Accept: */*
 Cache-Control: no-cache
 
 ###
 
-GET http://localhost:8080/api/registration/confirm
+GET http://localhost:8080/api/registration/confirm/1
 Accept: */*
 Cache-Control: no-cache
 
 ###
 
-GET http://localhost:8080/api/registration/fail
+GET http://localhost:8080/api/registration/confirmmsg/1
+Accept: */*
+Cache-Control: no-cache
+
+###
+
+GET http://localhost:8080/api/registration/fail/1
 Accept: */*
 Cache-Control: no-cache
 

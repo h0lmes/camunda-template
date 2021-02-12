@@ -3,20 +3,18 @@ package com.camundatemplate.process;
 import com.camundatemplate.process.model.RegistrationProcessData;
 import com.camundatemplate.util.Util;
 import org.camunda.bpm.engine.ExternalTaskService;
+import org.camunda.bpm.engine.MismatchingMessageCorrelationException;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.VariableScope;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
-import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * This component is intended to control a particular process with @Id = PROCESS_KEY.<p>
@@ -28,6 +26,8 @@ public class RegistrationProcess {
     private final Logger log = LoggerFactory.getLogger(RegistrationProcess.class);
 
     private static final String PROCESS_KEY = "processRegistration";
+
+    private static final String MESSAGE_CONFIRM_ACCOUNT = "MESSAGE_CONFIRM_ACCOUNT";
 
     private static final String TASK_CONFIRM_ACCOUNT_TOPIC = "taskConfirmAccount";
     private static final String TASK_CONFIRM_ACCOUNT_WORKER = "taskConfirmAccountWorker";
@@ -49,10 +49,6 @@ public class RegistrationProcess {
         this.externalTaskService = externalTaskService;
     }
 
-    public String startRandom() {
-        return start(UUID.randomUUID().toString());
-    }
-
     /**
      * A method to start an instance of the process.
      * @param externalId some startup variable for demo purposes.
@@ -62,21 +58,35 @@ public class RegistrationProcess {
         log.info("\n\n\n");
         log.info("******* start process " + PROCESS_KEY);
         return runtimeService
-                .startProcessInstanceByKey(PROCESS_KEY, makeStartupVariables(externalId))
+                .startProcessInstanceByKey(PROCESS_KEY, externalId, makeStartupVariables())
                 .getId();
     }
 
-    private Map<String, Object> makeStartupVariables(String externalId) {
+    private Map<String, Object> makeStartupVariables() {
         return Variables.createVariables()
-                .putValue(EXTERNAL_ID_ATTRIBUTE, externalId)
                 .putValue(PROCESS_DATA_ATTRIBUTE, new RegistrationProcessData("number", "holder"));
     }
 
-    public void confirmAccount() {
+    public void confirmAccountMessage(String externalId) {
+        log.info("******* confirm account with message for BusinessKey = " + externalId);
+        correlateMessage(MESSAGE_CONFIRM_ACCOUNT, externalId);
+    }
+
+    private void correlateMessage(String message, String businessKey) {
+        try {
+            runtimeService.createMessageCorrelation(message)
+                    .processInstanceBusinessKey(businessKey)
+                    .correlateExclusively();
+        } catch (MismatchingMessageCorrelationException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void confirmAccount(String externalId) {
         confirmOrFailAccount(true);
     }
 
-    public void failAccount() {
+    public void failAccount(String externalId) {
         confirmOrFailAccount(false);
     }
 
