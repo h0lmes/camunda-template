@@ -17,7 +17,7 @@ public class StatusController {
 
     private static final String SERVER_NAME = InetAddress.getLoopbackAddress().getCanonicalHostName();
 
-    @GetMapping("status")
+    @GetMapping
     public Status getStatus() {
         return new Status("OK", SERVER_NAME, getUpTime());
     }
