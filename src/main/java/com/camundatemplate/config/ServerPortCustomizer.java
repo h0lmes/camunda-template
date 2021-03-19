@@ -20,14 +20,13 @@ public class ServerPortCustomizer implements WebServerFactoryCustomizer<Configur
     }
 
     private boolean portInUse(int port) {
-        boolean result = false;
         try {
             new Socket("localhost", port).close();
-            result = true;
+            return true;
         }
         catch(IOException e) {
             System.out.println(e.getMessage());
+            return false;
         }
-        return result;
     }
 }
