@@ -23,24 +23,18 @@ import java.util.Map;
 @Component
 public class RegistrationProcess {
 
-    private final Logger log = LoggerFactory.getLogger(RegistrationProcess.class);
-
     private static final String PROCESS_KEY = "processRegistration";
-
     private static final String MESSAGE_CONFIRM_ACCOUNT = "MESSAGE_CONFIRM_ACCOUNT";
-
     private static final String TASK_CONFIRM_ACCOUNT_TOPIC = "taskConfirmAccount";
     private static final String TASK_CONFIRM_ACCOUNT_WORKER = "taskConfirmAccountWorker";
     private static final long LOCK_INTERVAL = 10000L;
     private static final int FETCH_LOCK_SIZE = 10;
-
-    static final String EXTERNAL_ID_ATTRIBUTE = "externalId";
     private static final String PROCESS_DATA_ATTRIBUTE = "processData";
     static final String CUSTOM_ATTRIBUTE = "attr";
-
     // BPMN diagram should contain error definition with the following error code
     private static final String ERR_CONFIRM_ACCOUNT = "ERR_CONFIRM_ACCOUNT";
 
+    private final Logger log = LoggerFactory.getLogger(RegistrationProcess.class);
     private RuntimeService runtimeService;
     private ExternalTaskService externalTaskService;
 
@@ -83,20 +77,21 @@ public class RegistrationProcess {
     }
 
     public void confirmAccount(String externalId) {
-        confirmOrFailAccount(true);
+        confirmOrFailAccount(externalId, true);
     }
 
     public void failAccount(String externalId) {
-        confirmOrFailAccount(false);
+        confirmOrFailAccount(externalId, false);
     }
 
     /**
-     * This method handles External Service Tasks for a specific topic TASK_CONFIRM_ACCOUNT_TOPIC.
+     * This method handles External Service Tasks for a specific business key and topic
      */
-    private void confirmOrFailAccount(boolean success) {
+    private void confirmOrFailAccount(String externalId, boolean success) {
         List<LockedExternalTask> tasks = externalTaskService
                 .fetchAndLock(FETCH_LOCK_SIZE, TASK_CONFIRM_ACCOUNT_WORKER)
                 .topic(TASK_CONFIRM_ACCOUNT_TOPIC, LOCK_INTERVAL)
+                .businessKey(externalId)
                 .enableCustomObjectDeserialization()
                 .execute();
 
